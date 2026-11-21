@@ -2,7 +2,7 @@
 
 Trabajos prácticos de **Aplicaciones Web 1** (Analista de Sistemas y Desarrollo de Software).
 El proyecto final es **Élite**, una tienda de ropa hecha íntegramente con **HTML, CSS y JavaScript**, sin frameworks ni backend.
-Pagina desplegada en: https://by2hash.github.io/elite/ usando **Github Pages**
+Pagina desplegada en: [https://by2hash.github.io/elite/ usando **Github Pages**](https://elitepage.vercel.app/) usando Vercel
 ---
 
 ## Estructura del repositorio
