@@ -2,6 +2,7 @@
 import '../modulos/comun.js';
 import { cargarTienda, cargarProvincias } from '../modulos/datos.js';
 import { obtenerCarrito, obtenerEnvio, guardarEnvio } from '../modulos/almacen.js';
+import { notificar } from '../modulos/notificaciones.js';
 import { detallarCarrito, calcularTotales } from '../modulos/calculos.js';
 import { pintarProductosResumen, pintarTotales } from '../modulos/render.js';
 import { activarValidacionEnVivo, validarFormulario, datosDeFormulario } from '../modulos/formularios.js';
@@ -33,7 +34,20 @@ activarValidacionEnVivo(formulario, reglas);
 formulario.addEventListener('submit', (e) => {
     e.preventDefault();
     if (!validarFormulario(formulario, reglas)) return;
-    guardarEnvio(datosDeFormulario(formulario)); // JSON con los datos de envío
+    const datos = datosDeFormulario(formulario);
+    guardarEnvio(datos); // JSON con los datos de envío
+    notificar({
+        tipo: 'formulario',
+        titulo: 'Formulario de envío completado',
+        detalle: [
+            `${datos.nombre} ${datos.apellido}`,
+            `Correo: ${datos.email}`,
+            ...(datos.telefono ? [`Teléfono: ${datos.telefono}`] : []),
+            `${datos.direccion}, ${datos.ciudad}`,
+            `${datos.provincia} (${datos['codigo-postal']})`,
+        ],
+        diferir: true, // el aviso se muestra en el paso de pago
+    });
     location.href = 'checkout_pago.html';
 });
 

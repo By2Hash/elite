@@ -3,7 +3,8 @@ import { agregarBotonWhatsApp } from '../modulos/comun.js';
 import { cargarTienda } from '../modulos/datos.js';
 import { crearTarjetaProducto } from '../modulos/componentes.js';
 import { agregarAlCarrito } from '../modulos/almacen.js';
-import { escaparHTML, normalizarTexto, mostrarEstado, MENSAJE_ERROR_CARGA } from '../modulos/util.js';
+import { notificar } from '../modulos/notificaciones.js';
+import { escaparHTML, normalizarTexto, formatearPrecio, mostrarEstado, MENSAJE_ERROR_CARGA } from '../modulos/util.js';
 
 agregarBotonWhatsApp();
 
@@ -90,6 +91,11 @@ grilla.addEventListener('click', (evento) => {
     const talleElegido = leerFiltros().talle;
     const talle = producto.talles.includes(talleElegido) ? talleElegido : producto.talles[0];
     agregarAlCarrito(producto.id, talle);
+    notificar({
+        tipo: 'carrito',
+        titulo: 'Producto agregado al carrito',
+        detalle: [producto.nombre, `Talle ${talle} · 1 unidad · ${formatearPrecio(producto.precio)}`],
+    });
 
     boton.textContent = `Agregado (talle ${talle})`;
     boton.classList.add('boton--exito');

@@ -3,6 +3,7 @@ import { agregarBotonWhatsApp } from '../modulos/comun.js';
 import { cargarTienda } from '../modulos/datos.js';
 import { crearTarjetaRecomendada } from '../modulos/componentes.js';
 import { agregarAlCarrito } from '../modulos/almacen.js';
+import { notificar } from '../modulos/notificaciones.js';
 import { leerCantidad, cantidadSegunAccion, CANTIDAD_MINIMA, CANTIDAD_MAXIMA } from '../modulos/cantidad.js';
 import { escaparHTML, formatearPrecio, mostrarEstado, RUTA_IMAGENES, MENSAJE_ERROR_CARGA } from '../modulos/util.js';
 
@@ -102,7 +103,18 @@ contenedor.addEventListener('change', (e) => {
 contenedor.addEventListener('submit', (e) => {
     e.preventDefault();
     const datos = new FormData(e.target);
-    agregarAlCarrito(productoActual.id, datos.get('talle'), leerCantidad(datos.get('cantidad')));
+    const talle = datos.get('talle');
+    const cantidad = leerCantidad(datos.get('cantidad'));
+    agregarAlCarrito(productoActual.id, talle, cantidad);
+    notificar({
+        tipo: 'carrito',
+        titulo: 'Producto agregado al carrito',
+        detalle: [
+            productoActual.nombre,
+            `Talle ${talle} · ${cantidad} ${cantidad === 1 ? 'unidad' : 'unidades'} · ${formatearPrecio(productoActual.precio * cantidad)}`,
+        ],
+        diferir: true, // el aviso se muestra al llegar al carrito
+    });
     location.href = 'carrito.html';
 });
 

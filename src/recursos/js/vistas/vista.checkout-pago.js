@@ -2,10 +2,17 @@
 import '../modulos/comun.js';
 import { cargarTienda } from '../modulos/datos.js';
 import { obtenerCarrito, obtenerEnvio, guardarPedido, vaciarCarrito } from '../modulos/almacen.js';
+import { notificar } from '../modulos/notificaciones.js';
 import { detallarCarrito, calcularTotales } from '../modulos/calculos.js';
 import { pintarProductosResumen, pintarTotales } from '../modulos/render.js';
 import { activarValidacionEnVivo, validarFormulario, datosDeFormulario } from '../modulos/formularios.js';
-import { mostrarEstado, MENSAJE_ERROR_CARGA } from '../modulos/util.js';
+import { formatearPrecio, mostrarEstado, MENSAJE_ERROR_CARGA } from '../modulos/util.js';
+
+const NOMBRES_METODO = {
+    tarjeta: 'Tarjeta de crédito o débito',
+    transferencia: 'Transferencia bancaria',
+    efectivo: 'Efectivo en punto de pago',
+};
 
 const formulario = document.querySelector('#form-pago');
 const datosTarjeta = document.querySelector('#datos-tarjeta');
@@ -89,6 +96,21 @@ formulario.addEventListener('submit', (e) => {
     };
     console.log('Pedido (JSON):', JSON.stringify(pedido, null, 2));
     guardarPedido(pedido);
+    const unidades = pedido.items.reduce((total, item) => total + item.cantidad, 0);
+    notificar({
+        tipo: 'pedido',
+        titulo: `Pedido ${pedido.numero} confirmado`,
+        detalle: [
+            `${unidades} ${unidades === 1 ? 'unidad' : 'unidades'} · ${pedido.items.length} ${
+                pedido.items.length === 1 ? 'producto' : 'productos'
+            }`,
+            `Pago: ${NOMBRES_METODO[datos.metodo] ?? datos.metodo}${
+                datos.metodo === 'tarjeta' ? ` (···· ${datos['numero-tarjeta'].replace(/\s/g, '').slice(-4)})` : ''
+            }`,
+            `Total: ${formatearPrecio(pedido.total)}`,
+        ],
+        diferir: true, // el aviso se muestra en la pantalla de confirmación
+    });
     vaciarCarrito();
     location.href = 'checkout_confirmacion.html';
 });
